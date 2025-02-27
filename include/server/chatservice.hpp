@@ -11,6 +11,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 #include "usermodel.hpp"
+#include "offlinemsgmodel.hpp"
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -29,6 +30,9 @@ public:
     // 处理客户端异常退出
     void clientCloseException(const TcpConnectionPtr &conn);
 
+    //一对一聊天
+    void oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time);
+
     // 获取消息id对应的handler
     MsgHandler getHandler(int msgid);
 
@@ -45,6 +49,7 @@ private:
 
     // 数据操作类对象
     UserModel _userModel;
+    OfflineMsgModel _offlineMsgModel;
 };
 
 #endif

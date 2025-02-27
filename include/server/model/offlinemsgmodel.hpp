@@ -4,7 +4,7 @@
 #include<string>
 using namespace std;
 
-class OfflineLineMsgModel
+class OfflineMsgModel
 {
 public:
     //存储用户的离线消息

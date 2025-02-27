@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 class Connection
 {
 public:
@@ -15,8 +16,8 @@ public:
     virtual ~Connection();
 
     // 连接数据库
-    bool connect(string ip, unsigned short port,
-                 string user, string passwd, string dbname);
+    bool connect(string ip = "127.0.0.1", unsigned short port = 3306,
+                 string user = "root", string passwd = "123456", string dbname = "chat"); ;
 
     // 对数据库做操作 update、delete、insert
     bool update(string sql);
