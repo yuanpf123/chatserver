@@ -3,12 +3,6 @@
 #include <memory>
 #include <muduo/base/Logging.h>
 
-static string ip = "127.0.0.1";
-static unsigned short port = 3306;
-static string user_name = "root";
-static string passwd = "123456";
-static string dbname = "chat";
-
 
 bool UserModel::insert(User &user)
 {
@@ -23,7 +17,7 @@ bool UserModel::insert(User &user)
     // ConnectionPool* cp=ConnectionPool::getConnectionPool();
     // shared_ptr<Connection> sp=cp->getConnection();
 
-    if(mysql_conn.connect(ip , port , user_name , passwd , dbname))
+    if(mysql_conn.connect())
     {
         LOG_INFO << "数据库连接成功: ";
         if (mysql_conn.update(sql))
@@ -41,7 +35,7 @@ User UserModel::queryById(int id){
     sprintf(sql, "select * from user where id = %d", id);
 
     Connection mysql_conn;
-    if(mysql_conn.connect(ip, port, user_name, passwd, dbname)){
+    if(mysql_conn.connect()){
         MYSQL_RES *res = mysql_conn.query(sql);
         if(res != nullptr){
             //用主键查询，要么有一条记录，要么没有记录
@@ -66,10 +60,21 @@ bool UserModel::updateState(User &user)
     sprintf(sql, "update user set state = '%s' where id = %d", user.getState().c_str(), user.getId());
 
     Connection mysql_conn;
-    if(mysql_conn.connect(ip, port, user_name, passwd, dbname)){
+    if(mysql_conn.connect()){
         if(mysql_conn.update(sql)){
             return true;
         }
     }
     return false;
 }
+
+//重置用户状态信息
+void UserModel::resetState(){
+    char sql[1024] = {0};
+    sprintf(sql, "update user set state = 'offline' where state = 'online'");
+
+    Connection mysql_conn;
+    if(mysql_conn.connect()){
+        mysql_conn.update(sql);
+    }
+}   

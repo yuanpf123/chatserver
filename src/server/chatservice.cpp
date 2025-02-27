@@ -1,4 +1,4 @@
-#ifndef CHATSERVICE_CPP
+
 
 #include "chatservice.hpp"
 #include "public.hpp"
@@ -17,6 +17,16 @@ ChatService::ChatService()
     //
     _msgHandlerMap.insert({ONE_CHAT_MSG, std::bind(&ChatService::oneChat, this, _1, _2, _3)});
 
+    // 添加好友业务
+    _msgHandlerMap.insert({ADD_FRIEND_MSG, std::bind(&ChatService::addFriend, this, _1, _2, _3)});
+
+}
+
+// 服务器异常，业务重置方法
+void ChatService::reset()
+{
+    // 把online的用户设置成offline
+    _userModel.resetState();
 }
 
 // 获取单例对象的调用接口
@@ -87,13 +97,27 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
             response["id"] = user.getId();
             response["name"] = user.getName();
             response["state"] = user.getState();
-            
 
-            // 查询该用户是否有离线消息
-            vector<string> vec = _offlineMsgModel.query(id);
+            // 查询该用户的好友信息
+            vector<User> vec = _friendModel.query(id);
             if (!vec.empty())
             {
-               response["offlinemsg"] = vec;
+                vector<string> vec2;
+                for (User &user : vec)
+                {
+                    json js;
+                    js["id"] = user.getId();
+                    js["name"] = user.getName();
+                    js["state"] = user.getState();
+                    vec2.push_back(js.dump());
+                }
+                response["friends"] = vec2;
+            } 
+            // 查询该用户是否有离线消息
+            vector<string> messages = _offlineMsgModel.query(id);
+            if (!messages.empty())
+            {
+                response["offlinemsg"] = messages;
                 // 删除用户的离线消息
                 _offlineMsgModel.remove(id);
             }
@@ -155,8 +179,10 @@ void ChatService::clientCloseException(const TcpConnectionPtr &conn){
             }
         }
     }
-    user.setState("offline");
-    _userModel.updateState(user);
+    if(user.getId()!=-1){
+        user.setState("offline");
+        _userModel.updateState(user);
+    }
 }
 
 void ChatService::oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time){
@@ -175,4 +201,13 @@ void ChatService::oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time
     _offlineMsgModel.insert(toid, js.dump()); 
 }
 
-#endif
+
+//添加好友
+void ChatService::addFriend(const TcpConnectionPtr &conn, json &js, Timestamp time){
+    int userid = js["id"].get<int>();
+    int friendid = js["friendid"].get<int>();
+    _friendModel.insert(userid, friendid);
+}
+
+
+
