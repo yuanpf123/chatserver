@@ -35,7 +35,7 @@ private:
     int groupid;//群组id
     string groupname;//群组名称
     string groupdesc;//群组描述
-    vector<GroupUser> groupusers;//返回该群组中的成员信息
+    vector<GroupUser> groupusers; // 返回该群组中的成员信息 GroupUser: 基本信息+用户在群组中的角色
 };
 
 #endif

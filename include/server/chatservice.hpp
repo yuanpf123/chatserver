@@ -13,6 +13,7 @@ using namespace muduo::net;
 #include "usermodel.hpp"
 #include "offlinemsgmodel.hpp"
 #include "friendmodel.hpp"
+#include "groupmodel.hpp"
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -39,6 +40,17 @@ public:
     // 添加好友业务
     void addFriend(const TcpConnectionPtr &conn, json &js, Timestamp time);
 
+    //创建群组
+    void createGroup(const TcpConnectionPtr &conn, json &js, Timestamp time);
+    //加入群组
+    void addGroup(const TcpConnectionPtr &conn, json &js, Timestamp time);
+    //群聊
+    void groupChat(const TcpConnectionPtr &conn, json &js, Timestamp time);
+
+    //处理注销业务
+    void loginout(const TcpConnectionPtr &conn, json &js, Timestamp time);
+
+
     // 获取消息id对应的handler
     MsgHandler getHandler(int msgid);
 
@@ -57,6 +69,7 @@ private:
     UserModel _userModel;
     OfflineMsgModel _offlineMsgModel;
     FriendModel _friendModel;
+    GroupModel _groupModel;
 
 };
 
